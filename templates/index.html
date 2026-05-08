@@ -230,6 +230,14 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
     <span class="live-dot"></span>
     AI仮想投資シミュレーター
     <span class="sim-badge">SIMULATION</span>
+    <span id="market-badge" style="
+      display:inline-flex;align-items:center;gap:4px;
+      border-radius:5px;padding:2px 9px;font-size:10px;font-weight:700;
+      border:1px solid rgba(78,109,140,.3);background:rgba(78,109,140,.1);color:var(--muted)
+    ">
+      <span id="market-dot" style="width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0"></span>
+      <span id="market-label">—</span>
+    </span>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div style="text-align:right">
@@ -398,6 +406,10 @@ tbody tr:hover td{background:rgba(255,255,255,.015)}
             <div style="font-size:10px;color:var(--muted2);margin-top:8px;text-align:center">
               ※ 仮想シミュレーション — 実注文は出ません
             </div>
+            <div id="market-note" style="
+              margin-top:8px;padding:7px 10px;border-radius:6px;font-size:10px;text-align:center;
+              background:rgba(78,109,140,.08);border:1px solid rgba(78,109,140,.2);color:var(--muted)
+            ">24時間いつでも仮想売買できます</div>
           </div>
 
           <!-- 価格更新ボタン -->
@@ -822,13 +834,39 @@ async function loadAll() {
   document.getElementById('reload-ic').innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
 }
 
+// ── Market status ────────────────────────────────────────────────────────
+async function loadMarketStatus() {
+  const r = await fetch('/api/market_status').catch(() => null);
+  if (!r || !r.ok) return;
+  const d = await r.json();
+
+  const badge = document.getElementById('market-badge');
+  const dot   = document.getElementById('market-dot');
+  const lbl   = document.getElementById('market-label');
+  const note  = document.getElementById('market-note');
+
+  if (d.is_open) {
+    badge.style.cssText += ';background:rgba(0,230,118,.1);border-color:rgba(0,230,118,.3);color:var(--green)';
+    dot.style.cssText   += ';background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.5s ease-in-out infinite';
+    lbl.textContent      = `東証 取引中 ${d.jst_time}`;
+    note.style.cssText  += ';background:rgba(0,230,118,.06);border-color:rgba(0,230,118,.2);color:var(--green)';
+    note.textContent     = `🟢 取引時間中（${d.jst_time} JST） — リアルタイム株価で仮想売買できます`;
+  } else {
+    lbl.textContent      = `東証 閉場中 ${d.jst_time}`;
+    note.textContent     = `⚫ ${d.price_note} — 24時間いつでも仮想売買できます`;
+  }
+}
+
 // ── Boot sequence ─────────────────────────────────────────────────────────
 // 1) DBデータを即時描画
 loadAll();
 // 2) パフォーマンスチャートはDBから即時取得（事前計算済み）
 loadPerfChart();
-// 3) 5分ごとに画面を更新
+// 3) 市場状態を取得・表示
+loadMarketStatus();
+// 4) 5分ごとに画面更新、市場状態は1分ごと
 setInterval(loadAll, 300_000);
+setInterval(loadMarketStatus, 60_000);
 </script>
 </body>
 </html>

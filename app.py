@@ -56,6 +56,53 @@ def fetch_one(ticker: str):
     return None, ticker
 
 
+@app.route("/api/market_status")
+def api_market_status():
+    """東京証券取引所の開閉状態を返す"""
+    try:
+        info = yf.Ticker("8035.T").fast_info
+        state = getattr(info, "market_state", None) or "UNKNOWN"
+    except Exception:
+        state = "UNKNOWN"
+
+    from datetime import timezone, timedelta
+    jst = timezone(timedelta(hours=9))
+    now_jst = datetime.now(jst)
+    weekday = now_jst.weekday()  # 0=月, 6=日
+    hour = now_jst.hour
+    minute = now_jst.minute
+    time_val = hour * 100 + minute
+
+    # 平日9:00〜15:30が通常取引時間
+    is_trading_hours = (weekday < 5) and (900 <= time_val <= 1530)
+
+    if is_trading_hours and state not in ("CLOSED", "PRE", "POST"):
+        label = "取引時間中"
+        color = "green"
+        price_note = "リアルタイム株価を使用"
+    else:
+        label = "取引時間外"
+        color = "muted"
+        if weekday >= 5:
+            reason = "土日休場"
+        elif time_val < 900:
+            reason = "開場前"
+        elif time_val > 1530:
+            reason = "閉場後"
+        else:
+            reason = "休場日"
+        price_note = f"直近の終値を使用（{reason}）"
+
+    return jsonify({
+        "label": label,
+        "color": color,
+        "price_note": price_note,
+        "is_open": color == "green",
+        "jst_time": now_jst.strftime("%H:%M"),
+        "note": "仮想シミュレーターは24時間いつでも売買できます",
+    })
+
+
 def fetch_prices_background(tickers: list):
     for t in tickers:
         fetch_one(t)
