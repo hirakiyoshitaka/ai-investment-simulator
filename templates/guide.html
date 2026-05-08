@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI仮想投資シミュレーター — 使い方ガイド</title>
+<style>
+:root{
+  --bg:#060c16;--card:#0d1829;--card2:#111f30;
+  --border:#1a2d45;--text:#dde8f5;--muted:#4e6d8c;
+  --green:#00e676;--green2:#00c853;--green-bg:rgba(0,230,118,.1);
+  --red:#ff4f4f;--red-bg:rgba(255,79,79,.1);
+  --blue:#29b6f6;--blue-bg:rgba(41,182,246,.1);
+  --gold:#ffc107;--gold-bg:rgba(255,193,7,.1);
+  --purple:#ce93d8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.7}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Header ── */
+.hero{
+  background:linear-gradient(135deg,#06111f 0%,#0a1e35 50%,#060c16 100%);
+  border-bottom:1px solid var(--border);
+  padding:50px 40px 42px;text-align:center
+}
+.hero-badge{
+  display:inline-block;background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.3);
+  color:var(--gold);border-radius:20px;padding:4px 16px;font-size:11px;font-weight:700;
+  letter-spacing:1px;margin-bottom:16px
+}
+.hero h1{font-size:30px;font-weight:800;margin-bottom:10px;
+  background:linear-gradient(90deg,#dde8f5,#29b6f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:14px;color:var(--muted);max-width:600px;margin:0 auto}
+.sim-label{
+  display:inline-block;margin-top:16px;
+  background:rgba(255,79,79,.1);border:1px solid rgba(255,79,79,.3);
+  color:#ff8a80;border-radius:8px;padding:6px 18px;font-size:12px;font-weight:600
+}
+
+/* ── Layout ── */
+.wrap{max-width:900px;margin:0 auto;padding:36px 24px 60px}
+.section{margin-bottom:40px}
+.sec-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:18px;font-weight:700;margin-bottom:18px;
+  padding-bottom:10px;border-bottom:2px solid var(--border)
+}
+.step-num{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:14px;font-weight:800;flex-shrink:0
+}
+.n1{background:linear-gradient(135deg,#29b6f6,#0288d1);color:#fff}
+.n2{background:linear-gradient(135deg,#00e676,#00c853);color:#000}
+.n3{background:linear-gradient(135deg,#ffc107,#ff8f00);color:#000}
+.n4{background:linear-gradient(135deg,#ab47bc,#7b1fa2);color:#fff}
+.n5{background:linear-gradient(135deg,#ff4f4f,#c62828);color:#fff}
+.n6{background:linear-gradient(135deg,#00e676,#00c853);color:#000}
+
+/* ── Card ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:12px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:13px;
+           display:flex;align-items:center;gap:8px}
+.card-body{padding:18px}
+
+/* ── Diagram boxes ── */
+.diag{
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  padding:20px;font-family:'Courier New',monospace;font-size:12px;line-height:2;
+  overflow-x:auto;margin:14px 0
+}
+.diag .hi-blue{color:var(--blue)}
+.diag .hi-green{color:var(--green)}
+.diag .hi-red{color:var(--red)}
+.diag .hi-gold{color:var(--gold)}
+.diag .hi-purple{color:var(--purple)}
+.diag .hi-muted{color:var(--muted)}
+.diag .box{display:inline-block;border:1px solid;border-radius:4px;padding:1px 8px}
+.diag .b-blue{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.diag .b-green{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.diag .b-red{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.diag .b-gold{border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
+
+/* ── Screen mockup ── */
+.mockup{
+  background:#040a12;border:2px solid var(--border);border-radius:12px;
+  overflow:hidden;margin:16px 0
+}
+.mockup-bar{
+  background:linear-gradient(90deg,#08111e,#0a1929);border-bottom:1px solid var(--border);
+  padding:8px 14px;display:flex;align-items:center;gap:8px
+}
+.dot{width:10px;height:10px;border-radius:50%}
+.d-red{background:#ff5f57}.d-yellow{background:#febc2e}.d-green{background:#28c840}
+.url-bar{background:#0d1a2e;border:1px solid var(--border);border-radius:5px;
+          padding:3px 12px;font-size:11px;color:var(--muted);flex:1;text-align:center}
+.mockup-body{padding:16px;font-size:12px}
+
+/* ── Screen sections ── */
+.screen-row{display:grid;gap:8px}
+.s-nav{
+  background:linear-gradient(90deg,#08111e,#0a1929);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:8px
+}
+.s-logo{font-weight:700;font-size:12px;display:flex;align-items:center;gap:6px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.s-badge{background:var(--blue-bg);border:1px solid rgba(41,182,246,.3);color:var(--blue);
+          border-radius:3px;padding:1px 6px;font-size:9px;font-weight:700}
+.s-val{text-align:right}
+.s-total-v{font-size:15px;font-weight:700;color:var(--green)}
+.s-pct{font-size:10px;color:var(--green)}
+
+.s-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.s-card{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;position:relative;overflow:hidden}
+.s-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.s-card.a::after{background:linear-gradient(90deg,#29b6f6,#ab47bc)}
+.s-card.b::after{background:linear-gradient(90deg,#00e676,#00c853)}
+.s-card.c::after{background:linear-gradient(90deg,#ffc107,#e65100)}
+.s-card.d::after{background:linear-gradient(90deg,#ab47bc,#29b6f6)}
+.s-clbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.s-cval{font-size:13px;font-weight:700;margin-top:3px}
+.s-csub{font-size:9px;color:var(--muted);margin-top:2px}
+
+.s-chart-area{background:var(--card2);border:1px solid var(--border);border-radius:7px;
+              padding:10px 12px;margin-bottom:8px;height:70px;position:relative;overflow:hidden}
+.s-chart-line{position:absolute;bottom:10px;left:12px;right:12px;height:40px}
+
+.s-two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+.s-holdings{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px 12px}
+.s-trade{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px 12px}
+
+.s-hrow{display:flex;justify-content:space-between;align-items:center;
+         padding:4px 0;border-bottom:1px solid rgba(26,45,69,.3);font-size:10px}
+.s-hrow:last-child{border-bottom:none}
+.s-ticker{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(41,182,246,.2);
+           border-radius:3px;padding:1px 5px;font-family:monospace;font-size:10px}
+
+/* ── Annotation ── */
+.ann{
+  position:relative;display:inline-block;
+  background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.3);
+  color:var(--gold);border-radius:6px;padding:3px 10px;
+  font-size:11px;font-weight:600
+}
+.arrow-down{
+  text-align:center;font-size:18px;color:var(--muted);margin:4px 0
+}
+
+/* ── Step flow ── */
+.flow{display:flex;flex-direction:column;gap:0}
+.flow-step{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:16px 0;border-bottom:1px solid rgba(26,45,69,.4)
+}
+.flow-step:last-child{border-bottom:none}
+.flow-icon{
+  width:44px;height:44px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0;margin-top:2px
+}
+.fi-blue{background:var(--blue-bg);border:1px solid rgba(41,182,246,.3)}
+.fi-green{background:var(--green-bg);border:1px solid rgba(0,230,118,.3)}
+.fi-gold{background:var(--gold-bg);border:1px solid rgba(255,193,7,.3)}
+.fi-red{background:var(--red-bg);border:1px solid rgba(255,79,79,.3)}
+.fi-purple{background:rgba(171,71,188,.1);border:1px solid rgba(171,71,188,.2)}
+.flow-content h4{font-size:13px;font-weight:700;margin-bottom:5px}
+.flow-content p{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ── Code block ── */
+.code{
+  background:#020710;border:1px solid var(--border);border-radius:8px;
+  padding:16px 18px;font-family:'Courier New',monospace;font-size:13px;
+  line-height:1.9;overflow-x:auto;margin:10px 0
+}
+.code .cmd{color:var(--green)}
+.code .cmt{color:var(--muted)}
+.code .url{color:var(--blue)}
+.code .num{color:var(--gold)}
+
+/* ── Tips ── */
+.tip{
+  background:rgba(41,182,246,.05);border:1px solid rgba(41,182,246,.2);
+  border-left:3px solid var(--blue);border-radius:8px;
+  padding:12px 16px;margin:12px 0;font-size:12px;color:var(--muted)
+}
+.tip strong{color:var(--blue)}
+.warn{
+  background:rgba(255,193,7,.05);border:1px solid rgba(255,193,7,.2);
+  border-left:3px solid var(--gold);border-radius:8px;
+  padding:12px 16px;margin:12px 0;font-size:12px;color:#ffe082
+}
+.warn strong{color:var(--gold)}
+
+/* ── Tag ── */
+.tag{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(41,182,246,.2);
+     border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;font-family:monospace}
+.tag-g{background:var(--green-bg);color:var(--green);border:1px solid rgba(0,230,118,.2);
+       border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700}
+.tag-r{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,79,79,.2);
+       border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700}
+.tag-gold{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(255,193,7,.2);
+          border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700}
+
+/* ── Feature grid ── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.feat-grid{grid-template-columns:1fr}}
+.feat{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.feat-icon{font-size:22px;margin-bottom:8px}
+.feat h4{font-size:12px;font-weight:700;margin-bottom:5px}
+.feat p{font-size:11px;color:var(--muted)}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;margin:12px 0}
+.tbl th{padding:9px 14px;background:var(--card2);border:1px solid var(--border);
+        font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.tbl td{padding:10px 14px;border:1px solid var(--border);font-size:12px;vertical-align:middle}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+
+/* ── Disclaimer ── */
+.disclaimer{
+  background:rgba(255,79,79,.05);border:1px solid rgba(255,79,79,.2);
+  border-radius:10px;padding:16px 20px;margin-top:20px;font-size:12px;line-height:1.8
+}
+.disclaimer h4{color:var(--red);font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+
+.nav-guide{
+  position:sticky;top:0;z-index:50;
+  background:rgba(6,12,22,.92);border-bottom:1px solid var(--border);
+  padding:10px 24px;display:flex;gap:20px;overflow-x:auto;backdrop-filter:blur(8px)
+}
+.nav-guide a{font-size:12px;color:var(--muted);white-space:nowrap;padding:4px 0}
+.nav-guide a:hover{color:var(--blue);text-decoration:none}
+
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--blue-bg);border:1px solid rgba(41,182,246,.3);color:var(--blue);
+  border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;
+  text-decoration:none;transition:all .15s
+}
+.back-btn:hover{background:rgba(41,182,246,.2);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav-guide">
+  <a href="#overview">概要</a>
+  <a href="#start">起動方法</a>
+  <a href="#screen">画面説明</a>
+  <a href="#buy">仮想買い方法</a>
+  <a href="#sell">仮想売り方法</a>
+  <a href="#chart">チャート見方</a>
+  <a href="#candidates">候補銘柄</a>
+  <a href="#db">データ保存</a>
+  <a href="#faq">よくある質問</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">📖 USAGE GUIDE</div>
+  <h1>AI仮想投資シミュレーター<br>使い方ガイド</h1>
+  <p>仮想の1,000万円を使って日本株をシミュレーションする方法をわかりやすく解説します</p>
+  <div class="sim-label">⚠️ 仮想シミュレーション専用 — 実際の売買は一切行いません</div>
+</div>
+
+<div class="wrap">
+
+<!-- ① 概要 -->
+<section class="section" id="overview">
+  <div class="sec-title">
+    <div class="step-num n1">①</div>
+    このシミュレーターとは？
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="hi-blue">│</span>          <span class="hi-gold">AI 仮想投資シミュレーター — 仕組み図</span>                   <span class="hi-blue">│</span>
+<span class="hi-blue">└─────────────────────────────────────────────────────────────┘</span>
+
+  <span class="b-gold box">仮想資金 ¥10,000,000</span>  <span class="hi-muted">← 架空のお金（実際の口座とは無関係）</span>
+           <span class="hi-muted">│</span>
+           <span class="hi-muted">▼</span>
+  <span class="b-blue box">過去株価データ取得</span>  <span class="hi-muted">← yfinanceで過去の実際の株価を取得</span>
+           <span class="hi-muted">│</span>
+           <span class="hi-muted">▼</span>
+  <span class="b-blue box">6ヶ月前の価格で仮想購入</span>  <span class="hi-muted">← 「もし6ヶ月前に買っていたら」を再現</span>
+           <span class="hi-muted">│</span>
+           <span class="hi-muted">▼</span>
+  <span class="b-green box">現在の株価と比較</span>  <span class="hi-muted">← リアルタイムの株価で評価損益を計算</span>
+           <span class="hi-muted">│</span>
+           <span class="hi-muted">▼</span>
+  <span class="b-green box">損益・勝率をブラウザ表示</span>  <span class="hi-muted">← SQLiteに全履歴を保存</span>
+
+  <span class="hi-red">✗  実際の証券口座への接続： なし</span>
+  <span class="hi-red">✗  実注文の発行           ： なし</span>
+  <span class="hi-green">✓  過去データによる仮想シミュレーション</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-grid">
+    <div class="feat">
+      <div class="feat-icon">📊</div>
+      <h4>候補銘柄 自動選定</h4>
+      <p>AIが半導体・防衛・金融など10銘柄を選定。選定理由もすべて表示</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💹</div>
+      <h4>仮想売買 シミュレーション</h4>
+      <p>仮想の1,000万円で買い・売りを自由に操作。履歴はSQLiteに保存</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📈</div>
+      <h4>損益グラフ 可視化</h4>
+      <p>過去6ヶ月のポートフォリオ推移をグラフで確認。勝率も自動計算</p>
+    </div>
+  </div>
+</section>
+
+<!-- ② 起動方法 -->
+<section class="section" id="start">
+  <div class="sec-title">
+    <div class="step-num n2">②</div>
+    起動方法（ステップ別）
+  </div>
+
+  <div class="card">
+    <div class="card-head">🖥️ ターミナルでの操作手順</div>
+    <div class="card-body">
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-icon fi-blue">📁</div>
+          <div class="flow-content">
+            <h4>STEP 1 — プロジェクトフォルダに移動</h4>
+            <div class="code">
+<span class="cmd">cd ~/AI投資プログラム</span>
+<span class="cmt"># フォルダに移動します</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-icon fi-gold">⚡</div>
+          <div class="flow-content">
+            <h4>STEP 2 — ポートフォリオを初期化（初回・リセット時のみ）</h4>
+            <div class="code">
+<span class="cmd">python3 auto_invest.py</span>
+<span class="cmt"># 実行すると以下が行われます：</span>
+<span class="cmt">#  ・10銘柄を6ヶ月前の実株価で仮想購入</span>
+<span class="cmt">#  ・過去6ヶ月分のパフォーマンスデータを計算・保存</span>
+<span class="cmt">#  ・SQLiteデータベースに全データを保存</span>
+<span class="cmt">#</span>
+<span class="cmt"># ⚠️ 完了まで約30〜60秒かかります（株価取得のため）</span>
+            </div>
+            <div class="tip">
+              <strong>ポイント：</strong>
+              初回だけ実行すれば、以降はサーバー起動のみでOKです。
+              ポートフォリオをリセットしたい時だけ再実行してください。
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-icon fi-green">🚀</div>
+          <div class="flow-content">
+            <h4>STEP 3 — サーバーを起動</h4>
+            <div class="code">
+<span class="cmd">python3 app.py</span>
+<span class="cmt">#</span>
+<span class="cmt"># 起動成功の確認メッセージ：</span>
+<span class="num"># =======================================================</span>
+<span class="num">#   AI仮想投資シミュレーター 起動中...</span>
+<span class="num">#   ブラウザ: http://127.0.0.1:8080</span>
+<span class="num"># =======================================================</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-icon fi-blue">🌐</div>
+          <div class="flow-content">
+            <h4>STEP 4 — ブラウザで開く</h4>
+            <div class="code">
+<span class="cmt"># 下記URLをブラウザに入力（またはコマンドで開く）：</span>
+<span class="url">http://127.0.0.1:8080</span>
+
+<span class="cmt"># Macの場合はこのコマンドで自動的に開きます：</span>
+<span class="cmd">open http://127.0.0.1:8080</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-icon fi-red">🛑</div>
+          <div class="flow-content">
+            <h4>STEP 5 — サーバーを止める時</h4>
+            <div class="code">
+<span class="cmt"># ターミナルで Ctrl + C を押す</span>
+<span class="num">^C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="diag">
+<span class="hi-blue">【起動フロー全体図】</span>
+
+  ターミナル                        ブラウザ
+  ──────────────────                ────────────────────────
+  <span class="hi-gold">python3 auto_invest.py</span>
+        │
+        ▼
+  <span class="b-blue box">株価データ取得</span> ←── <span class="hi-muted">yfinance (6ヶ月分)</span>
+        │
+        ▼
+  <span class="b-green box">SQLite DB 保存</span>
+        │
+  <span class="hi-gold">python3 app.py</span>
+        │
+        ▼
+  <span class="b-blue box">Flaskサーバー起動 :8080</span>
+        │                            <span class="hi-muted">ブラウザで</span>
+        └──────────────────────────→ <span class="url">http://127.0.0.1:8080</span>
+                                     <span class="hi-green">✓ シミュレーター画面が表示されます</span>
+  </div>
+</section>
+
+<!-- ③ 画面説明 -->
+<section class="section" id="screen">
+  <div class="sec-title">
+    <div class="step-num n3">③</div>
+    画面の見方（各エリア説明）
+  </div>
+
+  <!-- Screen mockup -->
+  <div class="mockup">
+    <div class="mockup-bar">
+      <div class="dot d-red"></div>
+      <div class="dot d-yellow"></div>
+      <div class="dot d-green"></div>
+      <div class="url-bar">http://127.0.0.1:8080</div>
+    </div>
+    <div class="mockup-body">
+
+      <!-- Disclaimer bar -->
+      <div style="background:rgba(255,193,7,.07);border:1px solid rgba(255,193,7,.2);border-radius:6px;
+                  padding:6px 12px;font-size:10px;color:#ffd54f;margin-bottom:8px">
+        ⚠️ <strong>仮想投資シミュレーター</strong> — 教育・学習目的専用。実際の証券口座への接続・実注文は一切行いません。
+      </div>
+
+      <!-- Nav -->
+      <div class="s-nav">
+        <div class="s-logo">
+          <div class="live-dot"></div>
+          AI仮想投資シミュレーター
+          <span class="s-badge">SIMULATION</span>
+        </div>
+        <div class="s-val">
+          <div class="s-total-v">¥12,589,529</div>
+          <div class="s-pct">+25.90%</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--gold);margin:-4px 0 8px;padding-left:4px">
+        ← ① ナビゲーションバー：総資産と損益率をリアルタイム表示
+      </div>
+
+      <!-- Summary cards -->
+      <div class="s-cards">
+        <div class="s-card a">
+          <div class="s-clbl">総資産</div>
+          <div class="s-cval">¥12,589,529</div>
+          <div class="s-csub">初期比 +25.90%</div>
+        </div>
+        <div class="s-card b">
+          <div class="s-clbl">評価損益</div>
+          <div class="s-cval" style="color:var(--green)">+¥2,589,529</div>
+          <div class="s-csub" style="color:var(--green)">+25.90%</div>
+        </div>
+        <div class="s-card c">
+          <div class="s-clbl">仮想現金残高</div>
+          <div class="s-cval">¥127,612</div>
+          <div class="s-csub">現金比率 1.0%</div>
+        </div>
+        <div class="s-card d">
+          <div class="s-clbl">株式評価額</div>
+          <div class="s-cval">¥12,461,917</div>
+          <div class="s-csub">10銘柄</div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--gold);margin:-4px 0 8px;padding-left:4px">
+        ← ② サマリーカード：総資産・損益・現金・株式評価額を一覧表示
+      </div>
+
+      <!-- Chart -->
+      <div class="s-chart-area">
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">📈 ポートフォリオ推移（仮想・過去6ヶ月）</div>
+        <svg width="100%" height="40" viewBox="0 0 400 40" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00e676" stop-opacity=".25"/>
+              <stop offset="100%" stop-color="#00e676" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,35 C20,33 30,30 60,28 C90,26 100,24 130,20 C160,16 170,18 200,14 C230,10 240,8 270,6 C290,4 310,5 340,3 C360,2 380,2 400,1" fill="none" stroke="#00e676" stroke-width="2"/>
+          <path d="M0,35 C20,33 30,30 60,28 C90,26 100,24 130,20 C160,16 170,18 200,14 C230,10 240,8 270,6 C290,4 310,5 340,3 C360,2 380,2 400,1 L400,40 L0,40 Z" fill="url(#g1)"/>
+          <line x1="0" y1="38" x2="400" y2="38" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="5,5"/>
+        </svg>
+      </div>
+      <div style="font-size:9px;color:var(--gold);margin:-4px 0 8px;padding-left:4px">
+        ← ③ パフォーマンスグラフ：6ヶ月の仮想ポートフォリオ推移
+      </div>
+
+      <!-- Holdings + Trade panel -->
+      <div class="s-two">
+        <div class="s-holdings">
+          <div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--blue)">📋 保有銘柄（仮想）</div>
+          <div class="s-hrow">
+            <div><span class="s-ticker">8035</span> <span style="font-size:10px">東京エレクトロン</span></div>
+            <div style="text-align:right"><span style="color:var(--green);font-size:10px">+52.2%</span></div>
+          </div>
+          <div class="s-hrow">
+            <div><span class="s-ticker">6857</span> <span style="font-size:10px">アドバンテスト</span></div>
+            <div style="text-align:right"><span style="color:var(--green);font-size:10px">+37.4%</span></div>
+          </div>
+          <div class="s-hrow">
+            <div><span class="s-ticker">6920</span> <span style="font-size:10px">レーザーテック</span></div>
+            <div style="text-align:right"><span style="color:var(--green);font-size:10px">+43.0%</span></div>
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-top:5px">...他7銘柄</div>
+        </div>
+        <div class="s-trade">
+          <div style="font-size:10px;font-weight:700;margin-bottom:6px;color:var(--gold)">⚡ トレードパネル</div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;
+                      padding:4px 8px;font-size:10px;color:var(--muted);margin-bottom:6px">
+            銘柄コード入力...
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+            <div style="background:var(--green2);border-radius:4px;padding:4px;text-align:center;
+                        font-size:10px;font-weight:700;color:#000">仮想買い</div>
+            <div style="border:1px solid var(--red);border-radius:4px;padding:4px;text-align:center;
+                        font-size:10px;font-weight:700;color:var(--red)">仮想売り</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--gold);margin-top:4px;padding-left:4px">
+        ← ④ 左：保有銘柄と損益一覧 ／ 右：仮想トレードパネル（買い・売り）
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 各エリア詳細 -->
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>エリア</th>
+        <th>表示内容</th>
+        <th>更新タイミング</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>① ナビバー</strong></td>
+        <td>総資産・損益率（リアルタイム）</td>
+        <td>操作のたびに即時更新</td>
+      </tr>
+      <tr>
+        <td><strong>② サマリーカード</strong></td>
+        <td>総資産 / 評価損益 / 現金残高 / 株式評価額</td>
+        <td>操作のたびに即時更新</td>
+      </tr>
+      <tr>
+        <td><strong>③ パフォーマンスグラフ</strong></td>
+        <td>6ヶ月の日次ポートフォリオ推移</td>
+        <td>auto_invest.py実行時に計算済み</td>
+      </tr>
+      <tr>
+        <td><strong>④ 保有銘柄テーブル</strong></td>
+        <td>各銘柄の株数・取得単価・現在値・損益</td>
+        <td>「株価更新」ボタンで最新化</td>
+      </tr>
+      <tr>
+        <td><strong>⑤ シミュレーション統計</strong></td>
+        <td>勝率・最大利益/損失銘柄・平均損益率</td>
+        <td>操作のたびに自動計算</td>
+      </tr>
+      <tr>
+        <td><strong>⑥ AI候補銘柄</strong></td>
+        <td>選定銘柄・セクター・スコア・選定理由</td>
+        <td>auto_invest.py実行時に更新</td>
+      </tr>
+      <tr>
+        <td><strong>⑦ 仮想売買履歴</strong></td>
+        <td>全取引の日時・株数・価格・理由</td>
+        <td>売買のたびに即時追加</td>
+      </tr>
+      <tr>
+        <td><strong>⑧ トレードパネル</strong></td>
+        <td>銘柄検索・仮想買い・仮想売り操作</td>
+        <td>操作時に即時反映</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ④ 仮想買い方法 -->
+<section class="section" id="buy">
+  <div class="sec-title">
+    <div class="step-num n1">④</div>
+    仮想買いの操作手順
+  </div>
+
+  <div class="card">
+    <div class="card-head">💚 仮想で株を「買う」手順</div>
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">【仮想買い — 操作フロー】</span>
+
+<span class="hi-gold">方法A：候補銘柄から選ぶ（おすすめ）</span>
+
+  ① AI候補銘柄セクションまでスクロール
+        │
+        ▼
+  ② 銘柄の <span class="b-green box">選択</span> ボタンをクリック
+        │
+        ▼
+  ③ 右パネルに自動で銘柄コードが入力される
+        │
+        ▼
+  ④ 現在の株価が表示される（例: ¥52,450）
+        │
+        ▼
+  ⑤ 株数を入力（例: 10）
+        │
+        ▼
+  ⑥ <span class="b-green box">仮想買い</span> ボタンをクリック
+        │
+        ▼
+  ✓ 「[仮想] 東京エレクトロン 10株 @ ¥52,450 で購入」と表示
+  ✓ 仮想現金残高が減少し、保有銘柄に追加される
+
+<span class="hi-gold">方法B：銘柄コードを直接入力</span>
+
+  ① トレードパネルの入力欄に銘柄コードを入力
+     例: <span class="hi-blue">7203</span>（トヨタ）/ <span class="hi-blue">9984</span>（ソフトバンクG）
+        │
+        ▼
+  ② Enterキーを押す or 🔍ボタンをクリック
+        │
+        ▼
+  ③〜⑥ 同上
+      </div>
+
+      <div class="warn">
+        <strong>⚠️ 注意：</strong>
+        仮想現金残高が不足している場合は「仮想資金不足」とエラーが表示されます。
+        売却して現金を増やすか、リセットしてください。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ 仮想売り方法 -->
+<section class="section" id="sell">
+  <div class="sec-title">
+    <div class="step-num n2">⑤</div>
+    仮想売りの操作手順
+  </div>
+
+  <div class="card">
+    <div class="card-head">🔴 仮想で株を「売る」手順</div>
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">【仮想売り — 操作フロー】</span>
+
+<span class="hi-gold">方法A：保有銘柄テーブルから直接売却（簡単）</span>
+
+  ① 保有銘柄テーブルで売りたい銘柄の行を確認
+        │
+        ▼
+  ② 右端の <span class="b-red box">売却</span> ボタンをクリック
+        │
+        ▼
+  ③ 「何株売りますか？（保有: XX株）」とダイアログが表示
+        │
+        ▼
+  ④ 売却株数を入力（例: 20）→ OKをクリック
+        │
+        ▼
+  ✓ 自動的に現在の株価で仮想売却が実行される
+  ✓ 仮想現金残高が増加し、実現損益がSQLiteに保存される
+
+<span class="hi-gold">方法B：トレードパネルから売却</span>
+
+  ① 銘柄コードを検索して株価を確認
+  ② 株数を入力
+  ③ <span class="b-red box">仮想売り</span> ボタンをクリック
+      </div>
+
+      <div class="tip">
+        <strong>実現損益について：</strong>
+        売却時の損益（取得単価との差額）は取引履歴に自動で記録されます。
+        例：「仮想実現損益: +¥150,000」のように表示されます。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ チャートの見方 -->
+<section class="section" id="chart">
+  <div class="sec-title">
+    <div class="step-num n3">⑥</div>
+    パフォーマンスグラフの見方
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">【パフォーマンスグラフ — 読み方】</span>
+
+  縦軸: ポートフォリオ総資産（万円）
+  横軸: 日付（過去6ヶ月）
+
+  ¥1,500万  ┤                                    <span class="hi-green">●← 現在値</span>
+            │                               <span class="hi-green">╭───╮</span>
+  ¥1,300万  ┤                          <span class="hi-green">╭───╯</span>
+            │                     <span class="hi-green">╭───╯</span>
+  ¥1,100万  ┤               <span class="hi-green">╭───╯</span>
+            │          <span class="hi-green">╭──╯</span>
+  ¥1,000万  ┼──────────────────────────────────────  <span class="hi-muted">← 元本ライン（¥1,000万）</span>
+            │     <span class="hi-green">╭──╯</span>
+   ¥900万  ┤<span class="hi-green">──────╯</span>
+            └────────────────────────────────────→
+           6ヶ月前                              現在
+
+  <span class="hi-green">──</span> 緑のライン: 仮想ポートフォリオの推移
+  <span class="hi-muted">- -</span> 白の点線  : 元本（¥1,000万）ライン
+  <span class="hi-green">塗りつぶし :</span> 元本より上（含み益）= 緑で塗りつぶし
+  <span class="hi-red">塗りつぶし :</span> 元本より下（含み損）= 赤で塗りつぶし
+
+  【ツールチップ（グラフにカーソルを当てると表示）】
+  ┌──────────────────────────────┐
+  │  2026-03-15                   │
+  │  総資産: ¥12,345,678          │
+  │  損益:  +¥2,345,678 (+23.46%) │
+  └──────────────────────────────┘
+
+  【期間切り替えボタン】
+  <span class="b-blue box">1ヶ月</span>  直近1ヶ月のみ表示
+  <span class="b-blue box">全期間</span> 6ヶ月全体を表示
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ 候補銘柄 -->
+<section class="section" id="candidates">
+  <div class="sec-title">
+    <div class="step-num n4">⑦</div>
+    AI候補銘柄の見方
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">【AI候補銘柄セクション — 構成】</span>
+
+ ┌──────────────────────────────────────────────────────────────┐
+ │  <span class="b-green box">92</span>  <span class="b-blue box">8035</span>  <strong>東京エレクトロン</strong>  <span class="hi-purple">[半導体製造装置]</span>    <span class="b-green box">選択</span>  │
+ │                                                                │
+ │  ▌ 【選定理由】AIデータセンター向け半導体製造装置で世界2位      │
+ │  ▌ のシェア。HBM製造ラインへの投資が急増しており成膜装置の受  │
+ │  ▌ 注が拡大。TSMC・SK Hynixの設備投資計画が上方修正中。        │
+ │  ▌ 【リスク】半導体景気の循環変動・対中輸出規制リスクあり。    │
+ └──────────────────────────────────────────────────────────────┘
+        │                │                    │              │
+        ▼                ▼                    ▼              ▼
+  <span class="hi-green">スコア</span>          <span class="hi-blue">銘柄コード</span>       <span class="hi-purple">セクター</span>         <span class="hi-green">選択ボタン</span>
+  <span class="hi-muted">（0〜100）</span>     <span class="hi-muted">クリックで</span>        <span class="hi-muted">業種分類</span>         <span class="hi-muted">クリックで</span>
+  <span class="hi-muted">数値が高いほど</span>  <span class="hi-muted">トレードパネル</span>                      <span class="hi-muted">トレードパネルへ</span>
+  <span class="hi-muted">有望度が高い</span>    <span class="hi-muted">に自動入力</span>                          <span class="hi-muted">自動入力</span>
+
+<span class="hi-blue">【セクター色分け】</span>
+
+  <span class="hi-purple">[半導体]</span>   東京エレクトロン・アドバンテスト・レーザーテック・ディスコ
+  <span class="hi-red">[防衛]</span>     三菱重工業・日本製鋼所
+  <span class="hi-gold">[金融]</span>     三菱UFJ FG・三井住友 FG
+  <span class="hi-blue">[FA]</span>       キーエンス
+  <span class="hi-green">[DX・IT]</span>  野村総合研究所
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ データ保存 -->
+<section class="section" id="db">
+  <div class="sec-title">
+    <div class="step-num n5">⑧</div>
+    SQLiteへのデータ保存について
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="diag">
+<span class="hi-blue">【SQLiteデータベース構造 — portfolio.db】</span>
+
+  <span class="hi-gold">portfolio.db</span>（プロジェクトフォルダ内に自動作成）
+  │
+  ├── <span class="b-blue box">cash</span>               仮想現金残高
+  │     └── balance: ¥127,612  （仮想）
+  │
+  ├── <span class="b-blue box">holdings</span>           保有銘柄（仮想）
+  │     ├── ticker:        "8035.T"
+  │     ├── company_name:  "東京エレクトロン"
+  │     ├── shares:        37
+  │     └── avg_buy_price: ¥34,468
+  │
+  ├── <span class="b-green box">transactions</span>       売買履歴（永続保存）
+  │     ├── datetime:      "2025-11-10 09:00:00"
+  │     ├── type:          "buy" or "sell"
+  │     ├── ticker:        "8035.T"
+  │     ├── shares:        37
+  │     ├── price:         ¥34,468
+  │     ├── total:         ¥1,275,304
+  │     └── reason:        選定理由テキスト全文
+  │
+  ├── <span class="b-gold box">candidates</span>         AI候補銘柄情報
+  │     ├── score:         92
+  │     ├── sector:        "半導体製造装置"
+  │     └── reason:        選定理由・リスク情報
+  │
+  └── <span class="b-green box">performance_history</span> 日次パフォーマンス
+        ├── date:          "2025-11-10"
+        └── value:         ¥9,872,388
+
+  <span class="hi-green">✓ アプリを再起動しても全データが保持されます</span>
+  <span class="hi-green">✓ 取引のたびに自動保存されます</span>
+  <span class="hi-muted">  ファイル場所: ~/AI投資プログラム/portfolio.db</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑨ FAQ -->
+<section class="section" id="faq">
+  <div class="sec-title">
+    <div class="step-num n6">⑨</div>
+    よくある質問
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>質問</th>
+        <th>回答</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>💰 <strong>仮想現金が足りなくなったら？</strong></td>
+        <td>「リセット」ボタンで¥1,000万からやり直せます。または保有株を売却して資金を作ってください。</td>
+      </tr>
+      <tr>
+        <td>📊 <strong>株価が古い（🟡マークが表示）</strong></td>
+        <td>トレードパネル下部の「株価を最新に更新」ボタンを押してください。約8〜15秒で更新されます。</td>
+      </tr>
+      <tr>
+        <td>📈 <strong>グラフが表示されない</strong></td>
+        <td>auto_invest.pyを再実行してください。パフォーマンスデータが計算・保存されるとグラフが表示されます。</td>
+      </tr>
+      <tr>
+        <td>🔄 <strong>ポートフォリオをリセットしたい</strong></td>
+        <td>画面右上の「リセット」ボタンを押すと全データが削除されます。その後auto_invest.pyを再実行してください。</td>
+      </tr>
+      <tr>
+        <td>🏦 <strong>実際の口座に注文は出る？</strong></td>
+        <td><strong style="color:var(--green)">絶対に出ません。</strong>このアプリはyfinanceで株価を取得するだけで、証券会社への接続機能は一切ありません。</td>
+      </tr>
+      <tr>
+        <td>📝 <strong>取引履歴はどこに保存される？</strong></td>
+        <td>プロジェクトフォルダの<span class="tag">portfolio.db</span>（SQLite）に永久保存されます。再起動後も消えません。</td>
+      </tr>
+      <tr>
+        <td>🌐 <strong>インターネットは必要？</strong></td>
+        <td>株価取得（yfinance）にインターネット接続が必要です。オフラインの場合は最後に取得した価格を表示します。</td>
+      </tr>
+      <tr>
+        <td>⚡ <strong>独自銘柄を追加したい</strong></td>
+        <td>トレードパネルで任意の4桁コードを入力して検索できます（例: 7203 = トヨタ、9984 = ソフトバンクG）。</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Disclaimer -->
+<div class="disclaimer">
+  <h4>⚠️ 重要な注意事項（免責事項）</h4>
+  <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+    <li>🔴 このアプリは<strong>教育・学習目的の仮想シミュレーター</strong>です</li>
+    <li>🔴 実際の証券口座への接続・実注文は<strong>一切行いません</strong></li>
+    <li>🔴 表示される損益・候補銘柄は過去データに基づく仮定であり、<strong>将来の運用成績を保証するものではありません</strong></li>
+    <li>🔴 実際の投資判断・売買には<strong>絶対に使用しないでください</strong></li>
+    <li>🔴 投資にはリスクが伴います。実際の投資は<strong>証券会社・金融アドバイザーに相談</strong>してください</li>
+  </ul>
+</div>
+
+<!-- Back button -->
+<div style="text-align:center;margin-top:32px">
+  <a href="http://127.0.0.1:8080" class="back-btn">
+    ← シミュレーターに戻る
+  </a>
+</div>
+
+</div><!-- /wrap -->
+</body>
+</html>
